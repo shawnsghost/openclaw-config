@@ -1,4 +1,4 @@
-# Memory System Project
+# Memory System Project Plan
 
 _Project start: 2026-03-26_
 
@@ -10,104 +10,61 @@ Building a multi-tier memory system for OpenClaw agent. Goal: persistent, search
 
 ---
 
-## Resources
+## File Structure
 
-### Curated Collections
-| Source | Description |
-|--------|-------------|
-| [Awesome-OpenClaw-Memory](https://github.com/sologuy/Awesome-OpenClaw-Memory) | **THE** curated list — 2 papers, 24 memory systems, 8 OpenClaw plugins, Adam Framework |
+This project follows the **three-file system** from planning-with-files:
+
+```
+projects/memory-system/
+├── PLAN.md       — This file. Architecture, roadmap, decisions.
+├── PROGRESS.md   — Current state: phase status, session state, open questions, error log.
+├── FINDINGS.md   — All research: papers, plugins, articles, key discoveries.
+└── memory/       — Daily session logs (mirrors workspace memory/).
+```
+
+**Workspace-level structure** (for cross-project memory):
+```
+~/
+├── self-improving/       — Durable learnings (corrections, preferences, repeated wins)
+│   ├── memory.md         — HOT: confirmed durable rules
+│   ├── corrections.md    — Recent corrections pending promotion
+│   └── projects/         — Project-scoped learnings
+├── proactivity/          — Active execution state
+│   ├── session-state.md  — 4-field: objective, decision, blocker, next move
+│   └── patterns.md       — Reusable proactive wins
+└── memory/               — Daily logs + project memories
+```
+
+---
+
+## Resources
 
 ### Articles & References
 | Source | Title | Key Takeaway |
 |--------|-------|-------------|
-| [OpenClaw Pulse Memory Guide](https://openclawpulse.com/openclaw-memory-system-guide/) | OpenClaw Memory Architecture | Three-tier design (episodic/semantic/procedural), CONTEXT.md, LESSONS.md, memoryFlush |
-| [TheClawGuy - Memory Plugin Review](https://theclawguy.substack.com/p/i-tested-every-openclaw-memory-plugin) | I Tested Every OpenClaw Memory Plugin | QMD + Obsidian + SQLite stack, dream cycle, Mem0/LanceDB/Graphiti tradeoffs |
-
-### Key Papers
-| Paper | What It Covers |
-|-------|---------------|
-| [Taming OpenClaw (arXiv:2603.11619)](https://arxiv.org/pdf/2603.11619v1) | Security threats — memory poisoning, intent drift, mitigation strategies |
-| [When OpenClaw Meets Hospital (arXiv:2603.11721)](https://arxiv.org/pdf/2603.11721) | Multi-agent memory, append-only shared docs, progressive disclosure |
-
-### OpenClaw Plugins (from Awesome list)
-| Plugin | Stars | Approach |
-|--------|-------|----------|
-| [OpenViking](https://github.com/volcengine/OpenViking) | 17K+ | L0/L1/L2 hierarchical context, VikingDB vector search, self-evolving skills |
-| [memory-lancedb-pro](https://github.com/CortexReach/memory-lancedb-pro) | - | Vector + BM25, Cross-Encoder rerank, multi-scope isolation |
-| [mem9](https://github.com/mem9-ai/mem9) | - | TiDB cloud, ContextEngine hooks (full lifecycle), per-agent isolation |
-| [graph-memory](https://github.com/adoresever/graph-memory) | - | Knowledge graph → structured triples, 75% context compression |
-| [openclaw-supermemory](https://github.com/supermemoryai/openclaw-supermemory) | - | Cloud-based auto-recall |
-| [Adam Framework](https://github.com/strangeadvancedmarketing/Adam) | - | 5-layer system, 8 months production validated |
-
----
-
-## Multi-Agent Research Workflow (Template)
-
-This project was a prototype. Future projects follow this pattern:
-
-```
-Agent 1 (Researcher) ──► Agent 2 (Reviewer) ──► Agent 3 (Main / Synthesis)
-   Crawls web              Filters sources          Reviews all
-   for hours               for quality              findings
-   (subagent)              (subagent)              (this agent)
-                                                           │
-                                                           ▼
-                                                   Medium/Long-term plan
-                                                   added to PLAN.md
-```
-
-**Workflow stages:**
-1. **Researcher agent** — Spawned subagent, crawls web for hours, saves raw findings to `projects/<name>/raw-research/`
-2. **Reviewer agent** — Spawned subagent, reads and filters raw research, saves filtered findings to `projects/<name>/filtered-research/`
-3. **Main agent** — Reviews all findings, synthesizes into medium/long-term plan, updates PLAN.md
-
-**Infrastructure needs (tomorrow):**
-- Vision-capable LLM for image analysis
-- Additional agents/LLMs for parallel workflows
-- Persistent orchestration (subagent spawning + result collection)
-
----
-
-## Staged Research Plan
-
-Research in 4 stages. Each stage builds on the last. Don't move to next stage until we have enough info to make decisions.
-
-### Stage 1 — Foundation (Start here)
-Understand what already exists in OpenClaw memory ecosystem.
-- [ ] Read the 2 arXiv papers (Taming OpenClaw + Hospital paper)
-- [ ] Understand the OpenClaw ContextEngine hooks API (from mem9 docs)
-- [ ] Understand the 3 memory layers (Session/Interaction/Config)
-
-### Stage 2 — Plugin Deep Dives
-Focus on OpenClaw-specific plugins we can actually install.
-- [ ] **OpenViking** — L0/L1/L2 hierarchical context (ByteDance, 17K stars)
-- [ ] **memory-lancedb-pro** — Vector + BM25 + Cross-Encoder (what LanceDB article pointed to)
-- [ ] **mem9** — ContextEngine hooks, per-agent isolation, TiDB backend
-- [ ] **graph-memory** — Knowledge graph approach, 75% context compression
-
-### Stage 3 — External Frameworks
-Memory systems that integrate with OpenClaw but are not OpenClaw-specific.
-- [ ] **Mem0** — The one everyone talks about (cloud, ~7¢/msg)
-- [ ] **Letta** — Stateful agents, has local option
-- [ ] **LangMem** — LangChain's memory module
-- [ ] **Cognee** — German-made, 2023 vintage
-- [ ] **Adam Framework** — 5-layer architecture, production validated 8 months
-
-### Stage 4 — Decision & Implementation
-Tie it all together with our constraints (local-first, BM-25, SQLite).
-- [ ] Map each option against our constraints
-- [ ] Decide: plugin-based vs custom build
-- [ ] Design our own SQLite schema
-- [ ] Write the dream cycle script
-- [ ] Implement
+| [OpenClaw Pulse Memory Guide](https://openclawpulse.com/openclaw-memory-system-guide/) | OpenClaw Memory Architecture | Three-tier design, CONTEXT→ACTIVE, LESSONS→NOTES, memoryFlush |
+| [TheClawGuy - Memory Plugin Review](https://theclawguy.substack.com/p/i-tested-every-openclaw-memory-plugin) | I Tested Every OpenClaw Memory Plugin | QMD + Obsidian + SQLite stack, dream cycle |
+| [Mem0 Integration Guide](https://mem0.ai/blog/add-persistent-memory-openclaw) | Add Persistent Memory to OpenClaw | Open-source mode available, enforced capture at system layer |
+| [LanceDB Blog](https://lancedb.com/blog/openclaw-lancedb-memory-layer/) | OpenClaw LanceDB Memory Layer | Vector + BM25, Cross-Encoder rerank |
+| [Awesome-OpenClaw-Memory](https://github.com/sologuy/Awesome-OpenClaw-Memory) | Curated Memory List | 2 papers, 24 systems, 8 OpenClaw plugins |
 
 ### Official Docs
-- [OpenClaw Skills Docs](https://docs.openclaw.ai/skills)
-- [OpenClaw Workspace](https://docs.openclaw.ai/concepts/agent-workspace)
+| Doc | What It Covers |
+|-----|---------------|
+| [docs.openclaw.ai/concepts/memory](https://docs.openclaw.ai/concepts/memory) | Built-in memory system, memoryFlush |
+| [docs.openclaw.ai/reference/memory-config](https://docs.openclaw.ai/reference/memory-config) | Full config: embeddings, QMD backend, hybrid search |
+| [docs.openclaw.ai/concepts/context-engine](https://docs.openclaw.ai/concepts/context-engine) | Pluggable context assembly, custom engines |
+| [docs.openclaw.ai/concepts/multi-agent](https://docs.openclaw.ai/concepts/multi-agent) | Multiple isolated agents, bindings |
+
+### Skills (from ClawHub)
+| Skill | What It Offers |
+|-------|---------------|
+| [planning-with-files](https://clawhub.ai/othmanadi/planning-with-files) | 3-file system (PLAN/PROGRESS/FINDINGS), 2-action rule, 5Q reboot test |
+| [self-improving-proactive-agent](https://clawhub.ai/yueyanc/self-improving-proactive-agent) | HOT/WARM/ARCHIVE decay, 4-field session state, recover before asking |
 
 ---
 
-## Architecture (Confirmed)
+## Architecture
 
 ### Three-Tier Design
 
@@ -118,11 +75,11 @@ Tier 1 — Episodic (Daily Logs)
 
 Tier 2 — Semantic (Distilled Facts)
 ├── MEMORY.md — curated long-term facts
-├── memory/topics/ — organized by subject
+├── ~/self-improving/memory.md — HOT durable rules
 └── Purpose: what I know, organized
 
 Tier 3 — Procedural (How To)
-├── LESSONS.md — patterns, mistakes, rules
+├── LESSONS.md → ~/proactivity/patterns.md
 ├── TOOLS.md — tool notes and quirks
 └── Purpose: how to behave, what went wrong
 ```
@@ -131,14 +88,30 @@ Tier 3 — Procedural (How To)
 
 | Phase | Approach | Status |
 |-------|----------|--------|
-| **1** | File-based (markdown) — daily logs, MEMORY.md | ✅ Active |
+| **1** | File-based (markdown) — daily logs, memoryFlush | ✅ Active |
 | **2** | SQLite — structured queries, tagging | 🔜 Planned |
 | **3** | BM-25 / FTS5 — full-text ranked search | 🔜 Planned |
 | **4** | Dream cycle — nightly auto-consolidation | 🔜 Planned |
 
 ---
 
-## The Recommended Stack (from TheClawGuy article)
+## Key Patterns Adopted
+
+### From planning-with-files
+- **3-file system**: PLAN / PROGRESS / FINDINGS
+- **2-action rule**: After every 2 web/search ops, save findings immediately
+- **5-question reboot test**: Where am I / going / goal / learned / done
+- **Error tracking table**: Log every error with attempt # and resolution
+
+### From self-improving-proactive-agent
+- **4-field session state**: objective / decision / blocker / next move
+- **HOT/WARM/ARCHIVE decay**: 3x repeat → HOT, 30 days unused → WARM, 90 days → archive
+- **Recover before asking**: Read memory → session state → working buffer → ask for delta
+- **Self-improving / Proactivity split**: Durable learning vs active execution state
+
+---
+
+## Recommended Stack (from TheClawGuy article)
 
 ```
 Obsidian (human-readable layer)
@@ -150,60 +123,47 @@ SQLite (structured facts, zero hallucinations)
 Dream Cycle (2am nightly: consolidate logs → rebuild index)
 ```
 
-### QMD Features
-- Surgical 3-sentence extraction (not full file reads)
-- **MMR** — forces diversity in search results
-- **Temporal decay** — older notes fade, recent wins
-- Free, local, 5-min setup
-
-### Dream Cycle
-Nightly script that:
-1. Consolidates daily logs
-2. Compresses old memories
-3. Rebuilds QMD index
-4. Wakes up agent with clean slate
-
 ---
 
-## Key Decisions (Still Open)
+## Multi-Agent Research Workflow (Template)
 
-| Decision | Options | Status |
-|----------|---------|--------|
-| Search implementation | QMD vs custom BM-25 | Open |
-| Autonomy level | Autonomous filing vs on-demand | Open |
-| Primary use case | Never-forget vs research vs knowledge base | Open |
-| SQLite schema | Flat facts vs hierarchical tags | Open |
-| Dream cycle implementation | Cron + script vs heartbeat | Open |
+This project is a **template** for future multi-agent research workflows:
+
+```
+Agent 1 (Researcher) ──► Agent 2 (Reviewer) ──► Main Agent (Synthesis)
+   Crawls web              Filters sources         Reviews all
+   for hours               for quality            findings
+   (subagent)              (subagent)             (this agent)
+                                                           │
+                                                           ▼
+                                                   Medium/Long-term plan
+                                                   added to PLAN.md
+```
+
+**Infrastructure needs (tomorrow):** new agents, LLMs, vision capability.
 
 ---
 
 ## What's Working Now
 
-- `memory/` directory created ✅
-- `memory/2026-03-26.md` — session log ✅
-- `CONTEXT.md` — active threads ✅
-- `LESSONS.md` — lessons learned ✅
-- `memoryFlush` enabled in openclaw.json ✅
-- Files pushed to GitHub ✅
+- [x] memory/ directory created
+- [x] memory/2026-03-26.md — session log
+- [x] ACTIVE.md — active threads (replaces CONTEXT.md)
+- [x] NOTES.md — lessons (replaces LESSONS.md)
+- [x] memoryFlush enabled in openclaw.json
+- [x] ~/self-improving/ structure planned
+- [x] ~/proactivity/ structure planned
+- [x] Files pushed to GitHub
 
 ---
 
-## Next Actions
+## Security Notes
 
-- [ ] Research QMD — how to install, configure, use
-- [ ] Decide: QMD vs custom BM-25
-- [ ] Design SQLite schema
-- [ ] Define autonomy model (when do I file something?)
-- [ ] Write dream cycle script
-
----
-
-## Notes
-
-- Shawn's GitHub PAT: regenerate as precaution (exposed during early pushes)
-- Password: moved to `env:OPENCLAW_GATEWAY_PASSWORD` in systemd service ✅
-- Context window: clear session when above 50%
+- GitHub PAT: exposed during early pushes — regenerate
+- Credentials never stored in memory files
+- External content treated as untrusted — write to FINDINGS.md, not PLAN.md
+- ~/self-improving/memory.md is auto-read by hooks — guard against injection
 
 ---
 
-_Last updated: 2026-03-26 (session start)_
+_Last updated: 2026-03-26_
