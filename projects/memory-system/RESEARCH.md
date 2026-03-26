@@ -203,6 +203,54 @@ OpenClaw with QMD backend
 
 ---
 
+## New Findings from OpenClaw Docs
+
+### Context Engine (plugins/concepts/context-engine.md)
+
+OpenClaw has a **pluggable context engine** — controls how context is assembled, summarized, persisted. Plugins can replace the engine entirely.
+
+Lifecycle hooks:
+- **Ingest** — store/index messages as they come in
+- **Assemble** — build context for each run (can inject `systemPromptAddition`)
+- **Compact** — summarize older history
+- **After turn** — persist state, trigger background compaction
+
+**Third-party context engines exist:**
+- `@martian-engineering/lossless-claw` — "lossless" context engine (no info on what makes it lossless)
+
+**Custom context engine possibility:**
+We could build a context engine plugin that uses our SQLite + BM-25 approach for assembly. The engine's `assemble()` returns messages + `systemPromptAddition` which could include our retrieved memories. This is a more sophisticated approach than a simple memory plugin.
+
+**Compaction model override:**
+```json
+compaction: {
+  model: "ollama/llama3.1:8b"  // Use small local model for summarization
+}
+```
+Could use a local Ollama model for compaction instead of main model — cost savings.
+
+### Multi-Agent (plugins/concepts/multi-agent.md)
+
+OpenClaw natively supports **multiple isolated agents** in one gateway:
+- Each has own workspace, auth, sessions, skills
+- Messages route via bindings (channel + peer-based)
+- Example: different agents for WhatsApp chat vs Telegram deep work vs family group
+- Per-agent sandbox and tool restrictions
+
+**This confirms the research workflow pattern:**
+- Researcher agent → Reviewer agent → Main agent synthesis
+- Each agent isolated with own workspace + session store
+- Could spawn as subagents or full persistent agents
+
+### Compaction (plugins/concepts/compaction.md)
+
+- Memory flush fires **before** compaction (already enabled)
+- Compaction uses summarization — could be replaced by retrieval-based approach via custom context engine
+- Can specify different model for compaction summarization
+- Custom context engine can `ownCompaction: true` and implement any strategy (DAG summaries, vector retrieval, etc.)
+
+---
+
 ## Key Open Questions
 
 1. **Is the built-in hybrid search good enough?** We know it exists but not how well it performs vs memory-lancedb-pro
