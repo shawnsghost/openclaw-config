@@ -4,6 +4,16 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ---
 
+## 🤖 Multi-Agent Team Setup (TODAY)
+- **Project**: projects/multi-agent-team/TODO.md
+- **Goal**: Add Research + Reviewer + Coder agents + Gemini + Google services
+- **Needed from Shawn**:
+  1. Google OAuth client_secret.json (for gog CLI)
+  2. Gemini API key (https://aistudio.google.com/app/apikey)
+  3. Confirm which agent handles vision
+
+---
+
 ## 🏗️ Memory System Build (IN PROGRESS)
 - **Status**: Research phases 1-2 done; implementation pending
 - **Key discovery**: OpenClaw built-in memory has local embeddings, hybrid BM25+vector, MMR, temporal decay — may not need external plugins
@@ -12,7 +22,7 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ---
 
-## 🤖 Self-Improving Structure (NEW)
+## 🤖 Self-Improving Structure
 - **~/self-improving/memory.md** — HOT durable rules (auto-read at session start)
 - **~/self-improving/corrections.md** — recent corrections pending promotion
 - **~/proactivity/session-state.md** — 4-field active state (objective/decision/blocker/next)
@@ -26,11 +36,11 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ---
 
-## 🔜 To Do (Next Session)
+## 🔜 To Do
+- [ ] TODAY: Multi-agent team setup (Research + Reviewer + Coder + Gemini + Google)
 - [ ] Test QMD backend (`memory.backend = "qmd"`)
 - [ ] Check if Ollama works on VPS
-- [ ] Read mem9, Adam Framework
 - [ ] Define dream cycle design
-- [ ] Add image analysis (vision-capable LLM tomorrow)
 
 ---
+
