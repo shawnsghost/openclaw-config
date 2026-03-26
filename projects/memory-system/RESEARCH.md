@@ -1,45 +1,50 @@
 # Memory System Research
 
-_Auto-researched 2026-03-26. More to come._
+_Auto-researched 2026-03-26. Updated with official docs findings._
 
 ---
 
 ## Executive Summary
 
-Two plugins stand out for our use case:
+**Major finding:** OpenClaw has built-in support for almost everything we wanted to build:
+- Local embeddings (Ollama, local GGUF models) — **no API key needed**
+- Hybrid BM25 + vector search — **already built in**
+- QMD sidecar backend — BM25 + vectors + reranking, fully local
+- MMR diversity re-ranking — **already built in**
+- Temporal decay — **already built in**
+- Pre-compaction memory flush — **already enabled**
 
-1. **memory-lancedb-pro** — Vector + BM25 hybrid search, Cross-Encoder rerank, multi-scope isolation, noise filtering. TypeScript, OpenClaw-native. Best fit for local-first BM-25 goal.
-
-2. **OpenViking** — File system paradigm, L0/L1/L2 hierarchical context loading, self-evolving skills. 17K stars, ByteDance backing. More powerful but heavier (Go + Python + C++ deps, requires VLM + embedding models).
-
-Both require external API keys (OpenAI or compatible) for embeddings — not fully offline.
+We may not need external plugins at all. The path forward might just be:
+1. Enable QMD backend (`memory.backend = "qmd"`)
+2. Configure local embeddings (Ollama or local GGUF)
+3. Done.
 
 ---
 
 ## Stage 1: Papers
 
 ### "Taming OpenClaw" (arXiv:2603.11619)
-**Security focus.** Key threats identified:
+**Security focus.** Key threats:
 - **Memory poisoning**: Malicious inputs get stored and influence future sessions
 - **Intent drift**: Ambiguous instructions cause agent to escalate privileges unexpectedly
 - **5 lifecycle stages**: initialization → input → reasoning → decision-making → execution
 
-**Mitigation strategies from the paper:**
+**Mitigation strategies:**
 - Plugin signing in initialization
 - Semantic firewall isolation for input
 - Dynamic memory integrity checks + state rollback
 - Intent consistency verification before execution
 - Kernel-level sandboxing + least-privilege
 
-**Relevance to us**: HIGH. Memory poisoning is real — we need input sanitization and memory integrity checks.
+**Relevance**: HIGH. Memory poisoning is real.
 
 ### "When OpenClaw Meets Hospital" (arXiv:2603.11721)
-**Multi-agent + clinical focus.** Key ideas:
+**Multi-agent + clinical focus.**
 - Tree structure + manifests instead of flat vector retrieval — "progressive disclosure"
 - Append-only shared documents for agent-to-agent collaboration
-- Agents don't communicate directly — they subscribe to events
+- Agents subscribe to events rather than communicate directly
 
-**Relevance to us**: MEDIUM. The tree/manifest approach for structured retrieval is interesting but clinical context is very specific.
+**Relevance**: MEDIUM. Interesting patterns but clinical context is specific.
 
 ---
 
@@ -47,147 +52,205 @@ Both require external API keys (OpenAI or compatible) for embeddings — not ful
 
 ### OpenViking (volcengine/OpenViking) — 17K+ stars
 
-**What it is:** Context database for AI agents. File system paradigm instead of flat vector storage.
+**What it is:** Context database. File system paradigm, L0/L1/L2 hierarchical loading.
 
 **Key features:**
-- **L0/L1/L2 tiered loading**: L0 always loaded, L1 on-demand directory-level, L2 deep vector retrieval
-- **File system metaphor**: memories, resources, skills unified like files in directories
-- **Self-evolving skills**: Automatically distills reusable skills from memory
-- **Visual retrieval traces**: Observable/debuggable context chain
+- L0/L1/L2 tiered context (always loaded / on-demand / deep vector)
+- Self-evolving skills
+- Visual retrieval traces
 
-**Pros:**
-- Most stars of any OpenClaw memory plugin
-- Hierarchical approach matches our "surgical retrieval" goal
-- Self-evolving skills is unique
+**Pros:** Most stars, hierarchical approach
 
-**Cons:**
-- Heavy dependencies: Python 3.10+ Go 1.22+ C++ compiler
-- Requires external API for VLM + embeddings (Volcengine, OpenAI, or LiteLLM)
-- ByteDance/China-based — some may prefer not to use this
-- Not purely local
+**Cons:** Heavy deps (Go + Python + C++), requires ByteDance/Volcengine account
 
-**Install:** `pip install openviking`
-
-**Config:** `~/.openviking/ov.conf` — needs API key for embeddings
+**Verdict**: Overkill for our needs. Built-in OpenClaw memory may suffice.
 
 ---
 
-### memory-lancedb-pro (CortexReach/memory-lancedb-pro)
+### memory-lancedb-pro (CortexReach)
 
-**What it is:** Production-grade LanceDB hybrid retrieval plugin. Vector + BM25 + Cross-Encoder rerank.
+**What it is:** LanceDB hybrid retrieval (Vector + BM25 + Cross-Encoder rerank).
 
 **Key features:**
-- **Hybrid retrieval**: Vector + BM25 FTS → RRF fusion → Cross-Encoder rerank
-- **Multi-stage scoring**: Recency boost + importance weight + length normalization + time decay
-- **MMR diversity**: Prevents near-duplicate results
-- **Noise filtering**: Filters refusals, greetings, meta-questions
-- **Multi-scope isolation**: global, agent:, project:, user: scopes
-- **Adaptive retrieval**: Skips queries that don't need memory
-- **Management CLI**: list, search, stats, delete, export, import, reembed
+- Hybrid retrieval: Vector + BM25 → RRF fusion → Cross-Encoder rerank
+- Multi-stage scoring: recency boost, importance weight, time decay, length norm
+- MMR diversity, noise filtering
+- Multi-scope isolation
 
-**Pros:**
-- **Best BM-25 implementation** — exactly what we want
-- Cross-Encoder reranking (Jina or custom endpoint)
-- Full lifecycle hooks: before_agent_start, before_prompt_build, agent_end
-- Noise filtering built in
-- TypeScript/OpenClaw-native
-- Tool definitions: memory_recall, memory_store, memory_forget
+**Pros:** Best BM-25 implementation, production-grade
 
-**Cons:**
-- Still needs embedding API (OpenAI-compatible, Gemini, Jina, Ollama)
-- LanceDB opaque storage (can't read memories directly like markdown)
-- Complex architecture — 20+ source files
+**Cons:** LanceDB opaque storage, needs embedding API
 
-**Relevant architecture for our BM-25 goal:**
+**Verdict**: Excellent but may be redundant — OpenClaw built-in + QMD may do the same thing.
+
+---
+
+### Mem0 (@mem0/openclaw-mem0)
+
+**What it is:** Enforced memory capture at system layer, not left to LLM discretion.
+
+**Key insight from article:**
+- Memory capture is **enforced** — not optional
+- Auto-injects relevant memory **before every response**
+- **Open-source mode available** — no API key needed
+
+**The core problem it solves:**
+> "Memory exists, but it is optional. The LLM decides what to save, when to search."
+
+**Verdict**: Solves the enforcement problem. Open-source mode is a big plus.
+
+---
+
+## Stage 3: Official OpenClaw Built-in Capabilities (NEW!)
+
+**Source: docs.openclaw.ai/concepts/memory + reference/memory-config**
+
+### What's Already Built In
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Local embeddings (Ollama) | ✅ Available | `memorySearch.provider = "ollama"` |
+| Local GGUF embeddings | ✅ Available | `memorySearch.provider = "local"` via node-llama-cpp |
+| Hybrid BM25 + vector | ✅ Available | Built-in, not just plugin |
+| MMR diversity re-ranking | ✅ Available | Post-processing feature |
+| Temporal decay | ✅ Available | Built-in post-processing |
+| QMD sidecar backend | ✅ Available | BM25 + vectors + reranking, fully local |
+| Pre-compaction memory flush | ✅ Enabled | `memoryFlush` already in config |
+| Multi-embedding providers | ✅ | OpenAI, Gemini, Voyage, Mistral, Ollama, local GGUF |
+
+### QMD Backend (Experimental)
+
+From the official docs:
+
+> "Set `memory.backend = "qmd"` to swap the built-in SQLite indexer for QMD: a local-first search sidecar that combines BM25 + vectors + reranking."
+
+**Key points:**
+- Runs fully locally via Bun + node-llama-cpp
+- Auto-downloads GGUF models from HuggingFace — no separate Ollama needed
+- Markdown stays source of truth
+- Session JSONL indexing available
+- Citations support
+- SQLite backend
+- Installs via: `bun install -g https://github.com/tobi/qmd`
+- OS: macOS + Linux, Windows via WSL2
+
+### Local Embedding Options
+
+1. **`memorySearch.provider = "local"`** — uses node-llama-cpp, auto-downloads GGUF from HuggingFace
+2. **`memorySearch.provider = "ollama"`** — uses running Ollama daemon at `/api/embeddings`
+
+Both are fully offline. No API key needed.
+
+### Hybrid Search
+
+> "Memory search supports multiple embedding providers... Hybrid search (BM25 + vector) is available for combining semantic matching with exact keyword lookups."
+
+This is **already enabled** in OpenClaw's built-in memory.
+
+### Memory Flush (Pre-compaction)
+
+Already configured in our openclaw.json:
+```json
+compaction: {
+  memoryFlush: {
+    enabled: true,
+    softThresholdTokens: 4000
+  }
+}
 ```
-Query → embedQuery() ─┐
-                       ├─→ RRF Fusion → Rerank → Recency Boost → Importance Weight → Filter
-Query → BM25 FTS ─────┘
+
+This is already working — we set it up earlier today.
+
+---
+
+## Updated Architecture Thinking
+
+### Option A: Pure Built-in (No External Plugins)
+```
+OpenClaw built-in memory
+  ├── Local embeddings (Ollama or local GGUF)
+  ├── Hybrid BM25 + vector search
+  ├── MMR + temporal decay
+  ├── memoryFlush (pre-compaction) — already enabled
+  └── QMD backend (optional upgrade)
 ```
 
-**Multi-stage scoring:**
-- Recency boost: exp(-ageDays / 14) — newer wins
-- Importance weight: 0.7 + 0.3 * importance
-- Time decay: 0.5 + 0.5 * exp(-ageDays / 60) — older fades
-- Length normalization: prevents long entries dominating
-- MMR: cosine similarity > 0.85 → demoted
+**Pros:** No extra deps, fully local, officially supported
+**Cons:** QMD is marked "experimental"
+
+### Option B: Built-in + Mem0 (Open-source mode)
+```
+OpenClaw built-in memory (file-based)
+    + 
+Mem0 open-source mode (enforced capture layer)
+    +
+Local embeddings
+```
+
+**Pros:** Solves the "LLM doesn't save memory" problem
+**Cons:** Two systems to manage
+
+### Option C: QMD Backend
+```
+OpenClaw with QMD backend
+  ├── QMD: BM25 + vectors + reranking (fully local)
+  ├── Local GGUF embeddings via QMD's node-llama-cpp
+  └── Memory files remain source of truth
+```
+
+**Pros:** Most capable search, fully local
+**Cons:** QMD is experimental, Bun dependency
 
 ---
 
-### mem9 (mem9-ai/mem9)
+## Key Open Questions
 
-**What it is:** Persistent cloud memory powered by TiDB. ContextEngine hooks API.
-
-**Key features:**
-- Full lifecycle hooks: before_prompt_build, before_reset, agent_end
-- "One claw one database" — per-agent isolated storage
-- Memory Space web visualization at mem9.ai
-- Self-hostable with TiDB/MySQL
-
-**Pros:**
-- ContextEngine integration — full lifecycle participation
-- Per-agent isolation (privacy)
-- MySQL/TiDB backend — can run local
-
-**Cons:**
-- Cloud service (mem9.ai) for visualization
-- TiDB backend required (not pure SQLite)
-- Need TiDB account or self-hosted
+1. **Is the built-in hybrid search good enough?** We know it exists but not how well it performs vs memory-lancedb-pro
+2. **QMD stability?** Marked experimental — is it production-ready?
+3. **Do we need Mem0's enforcement, or does memoryFlush + habits solve the "LLM forgets" problem?**
+4. **Ollama vs local GGUF** — which embedding model works better on a VPS?
 
 ---
 
-### graph-memory (adoresever/graph-memory)
+## Recommendations (Preliminary)
 
-**What it is:** Knowledge graph context engine. Extracts structured triples.
+**Start with built-in:**
+1. Enable `memory.backend = "qmd"` if we want the best search
+2. Use local embeddings (Ollama or local GGUF)
+3. Keep `memoryFlush` enabled
+4. See if it's enough — probably is for our scale
 
-**Key features:**
-- Structured triples instead of flat text
-- 75% context compression claimed
-- Cross-session experience reuse
+**Add Mem0 only if needed:**
+- If we find the LLM still isn't saving memories reliably
+- Then add Mem0 open-source mode as an enforcement layer
 
-**Cons:**
-- Small/niche plugin
-- Knowledge graph complexity
-- Triple extraction quality depends on LLM
-
----
-
-## Key Findings
-
-### On BM-25 / Search
-- **memory-lancedb-pro** has the best BM-25 implementation — RRF fusion (Vector 85% + BM25 15%), not pure BM25
-- The article's recommendation of QMD + SQLite is still valid as a custom-build path
-- LanceDB FTS5 is BM-25-like and embedded — could be our SQLite equivalent
-
-### On Security ("Taming OpenClaw")
-- Memory poisoning is a real threat — we need input filtering
-- Don't rely on context window to filter — memories persist across sessions
-- The paper recommends semantic firewall + integrity checks
-
-### On OpenViking vs memory-lancedb-pro
-- OpenViking is the "big platform" approach (17K stars, ByteDance)
-- memory-lancedb-pro is the "best fit for our constraints" approach
-- Both need external API keys for embeddings — neither is fully offline
+**Skip LanceDB plugin unless:**
+- QMD proves inadequate
+- We need the cross-encoder reranking specifically
 
 ---
 
-## Open Questions (for tomorrow)
+## Resources Found
 
-1. Can we use local embeddings (Ollama) instead of OpenAI to keep it fully local?
-2. mem9 with self-hosted TiDB — is this better than LanceDB for local-first?
-3. Should we build custom with SQLite FTS5 instead of using a plugin?
-4. What's the actual session volume / memory load expected?
+| Source | URL | What It Is |
+|--------|-----|------------|
+| Official Memory Docs | docs.openclaw.ai/concepts/memory | Canonical source |
+| Memory Config Reference | docs.openclaw.ai/reference/memory-config | Full config surface |
+| Mem0 Integration Guide | mem0.ai/blog/add-persistent-memory-openclaw | Mem0 + OpenClaw setup |
+| LanceDB Pro Blog | lancedb.com/blog/openclaw-memory-from-zero-to-lancedb-pro | Plugin deep dive |
+| Awesome-OpenClaw-Memory | github.com/sologuy/Awesome-OpenClaw-Memory | Curated list |
+| QMD (Tobi) | github.com/tobi/qmd | Local-first search sidecar |
 
 ---
 
 ## TODO (Next Session)
 
-- [ ] Read graph-memory and mem9 READMEs
-- [ ] Research local embedding options (Ollama, Jina local)
-- [ ] Read the LanceDB FTS5 docs — is it a BM-25 alternative?
-- [ ] Check Adam Framework (5-layer, production validated)
-- [ ] Start mapping plugin features to our constraints
+- [ ] Try QMD backend (`memory.backend = "qmd"`) — is it stable?
+- [ ] Test local embeddings — does Ollama work on this VPS?
+- [ ] Read LanceDB blog post fully (memory-lancedb-pro)
+- [ ] Decide: is built-in enough, or do we need Mem0?
+- [ ] Design implementation plan
 
 ---
 
-_Last updated: 2026-03-26 morning_
+_Last updated: 2026-03-26 afternoon_
