@@ -1,0 +1,19 @@
+# Sensitive — do not commit
+credentials/
+devices/
+identity/
+media/
+logs/
+*.bak
+*.bak.*
+
+# OpenClaw runtime
+.openclaw/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
