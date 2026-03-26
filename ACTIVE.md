@@ -4,9 +4,15 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ---
 
-## 🤖 Multi-Agent Team Setup (TODAY)
+## ✅ Memory System — IMPLEMENTED
+- Ollama running with nomic-embed-text (local, no API key)
+- `memorySearch.provider = "ollama"` configured
+- Gateway restarted — memory: vector ready + fts ready
+
+---
+
+## 🤖 Multi-Agent Team Setup (Pending)
 - **Project**: projects/multi-agent-team/TODO.md
-- **Goal**: Add Research + Reviewer + Coder agents + Gemini + Google services
 - **Needed from Shawn**:
   1. Google OAuth client_secret.json (for gog CLI)
   2. Gemini API key (https://aistudio.google.com/app/apikey)
@@ -14,33 +20,29 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ---
 
-## 🏗️ Memory System Build (IN PROGRESS)
-- **Status**: Research phases 1-2 done; implementation pending
-- **Key discovery**: OpenClaw built-in memory has local embeddings, hybrid BM25+vector, MMR, temporal decay — may not need external plugins
-- **Pattern adopted**: planning-with-files + self-improving-proactive-agent frameworks
-- **Files**: projects/memory-system/PLAN.md (architecture) / PROGRESS.md (state) / FINDINGS.md (research)
-
----
-
-## 🤖 Self-Improving Structure
-- **~/self-improving/memory.md** — HOT durable rules (auto-read at session start)
-- **~/self-improving/corrections.md** — recent corrections pending promotion
-- **~/proactivity/session-state.md** — 4-field active state (objective/decision/blocker/next)
-- Pattern: recover-before-asking, HOT/WARM/ARCHIVE decay, 2-action rule
+## 🏗️ Memory System Build (DONE)
+- Built-in memory configured with Ollama embeddings
+- Stage 1-2 research complete
+- Files: projects/memory-system/PLAN.md, PROGRESS.md, FINDINGS.md
 
 ---
 
 ## 🔐 Security Hardening (DONE)
-- **Password**: moved to systemd env var `OPENCLAW_GATEWAY_PASSWORD`
-- **GitHub PAT**: needs regeneration (exposed during early pushes)
+- Password in systemd env var `OPENCLAW_GATEWAY_PASSWORD`
+- GitHub PAT: exposed during early pushes — regenerate when convenient
+
+---
+
+## 📦 OpenClaw Config Repo
+- **Repo**: https://github.com/shawnsghost/openclaw-config
+- **Status**: All progress pushed
 
 ---
 
 ## 🔜 To Do
-- [ ] TODAY: Multi-agent team setup (Research + Reviewer + Coder + Gemini + Google)
-- [ ] Test QMD backend (`memory.backend = "qmd"`)
-- [ ] Check if Ollama works on VPS
-- [ ] Define dream cycle design
+- [ ] Google services setup (gog CLI) — waiting on OAuth creds
+- [ ] Gemini LLM setup — waiting on API key
+- [ ] Create Research/Reviewer/Coder agents
+- [ ] Test memory search with actual queries
 
 ---
-
