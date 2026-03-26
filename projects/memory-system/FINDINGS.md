@@ -291,6 +291,57 @@ OpenClaw natively supports **multiple isolated agents** in one gateway:
 
 ---
 
+## Skills from ClawHub (Inspiration)
+
+### Agent Team Orchestration (arminnaimi)
+**Source:** https://clawhub.ai/arminnaimi/agent-team-orchestration
+**Relevance:** HIGH — directly implements the multi-agent research workflow Shawn described
+
+**Key patterns:**
+- **Roles**: Orchestrator (route/track) → Builder (produce) → Reviewer (verify) → Ops (cron/health)
+- **Task lifecycle**: Inbox → Assigned → In Progress → Review → Done | Failed
+- **Handoff protocol**: What was done + where artifacts are + how to verify + known issues + what's next
+- **Review step is mandatory** — "Skip the review step and quality degrades within 3-5 tasks"
+- **Spawn requires**: Task ID, output path, handoff instructions
+
+**This is exactly what Shawn wants for the research workflow:**
+```
+Researcher agent (Builder) → Reviewer agent → Orchestrator (me)
+```
+
+### Active Maintenance (xiaowenzhou)
+**Source:** https://clawhub.ai/xiaowenzhou/active-maintenance
+**Description:** "Automated system health and memory metabolism for OpenClaw"
+**Relevance:** HIGH — directly related to memory system
+
+### Session Wrap-Up (xbillwatsonx/alex-session-wrap-up)
+**Source:** https://clawhub.ai/xbillwatsonx/alex-session-wrap-up
+**Description:** "End-of-session automation that commits unpushed work, extracts learnings, detects patterns, and persists rules"
+**Relevance:** HIGH — matches our NOTES.md + self-improving pattern
+
+### 2nd-Brain (coderaven/2nd-brain)
+**Source:** https://clawskills.sh/skills/coderaven-2nd-brain
+**Description:** "Personal knowledge base for capturing and retrieving information about people, places, restaurants, games, tech"
+**Relevance:** MEDIUM — general PKM pattern
+
+### Agent Audit (sharbelayy/agent-audit)
+**Source:** https://clawhub.ai/sharbelayy/agent-audit
+**Description:** "Audit your AI agent setup for performance, cost, and ROI"
+**Relevance:** MEDIUM — useful for reviewing agent setup
+
+### Arc Agent Lifecycle (trypto1019/arc-agent-lifecycle)
+**Source:** https://clawhub.ai/trypto1019/arc-agent-lifecycle
+**Description:** "Manage the lifecycle of autonomous agents and their skills"
+**Relevance:** MEDIUM — could complement agent-team-orchestration
+
+### Academic Research Skills
+- `xukp20/arxiv-search-collector` — Model-driven arXiv retrieval workflow
+- `rogersuperbuilderalpha/academic-research` — OpenAlex API (free, no key)
+- `anisafifi/academic-research-hub` — Similar
+**Relevance:** HIGH for research projects
+
+---
+
 ## TODO (Next Session)
 
 - [ ] Try QMD backend (`memory.backend = "qmd"`) — is it stable?
