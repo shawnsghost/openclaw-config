@@ -6,18 +6,8 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ## 🏗️ Memory System Build (IN PROGRESS)
 - **Goal**: Design and build a multi-tier memory system (episodic → semantic → procedural)
-- **Status**: Research phase — read papers and top plugins
-- **Resources collected**:
-  - Awesome-OpenClaw-Memory repo (curated list: 2 papers, 24 systems, 8 plugins)
-  - OpenViking (17K stars, L0/L1/L2 hierarchical context)
-  - memory-lancedb-pro (Vector+BM25 hybrid, Cross-Encoder rerank)
-  - "Taming OpenClaw" paper (security: memory poisoning, intent drift)
-  - "When OpenClaw Meets Hospital" paper (multi-agent, progressive disclosure)
-- **Key findings so far**:
-  - memory-lancedb-pro is best fit for our BM-25 goal
-  - OpenViking is most popular but heavier + requires ByteDance account
-  - Both need embedding API (OpenAI-compatible) — not fully offline
-  - Security paper highlights memory poisoning as real threat
+- **Status**: Research phase — major findings from official docs
+- **Big revelation**: OpenClaw built-in memory has local embeddings, hybrid BM25+vector, MMR, temporal decay — may not need external plugins
 - **References**: projects/memory-system/RESEARCH.md has full details
 
 ---
@@ -31,7 +21,15 @@ _This file survives context compaction. Update it when starting or finishing tas
 
 ## 📦 OpenClaw Config Repo
 - **Repo**: https://github.com/shawnsghost/openclaw-config
-- **Last push**: research files + plan pushed
+- **Last push**: research update with official docs findings
+
+---
+
+## 🤖 Multi-Agent Workflow Pattern (NEW)
+- This project is a **template** for future multi-agent research workflows
+- Pattern: Researcher subagent → Reviewer subagent → Main agent synthesis
+- Next project: spawn agents for parallel research on chosen topic
+- **Infrastructure coming tomorrow**: new agents, LLMs, vision capability
 
 ---
 
@@ -40,6 +38,7 @@ _This file survives context compaction. Update it when starting or finishing tas
 - [ ] Decide: plugin-based (memory-lancedb-pro) vs custom (SQLite FTS5)
 - [ ] Check if local embeddings (Ollama) work for privacy
 - [ ] Define autonomy model for memory filing
-- [ ] Open questions in RESEARCH.md
+- [ ] **NEW**: Update PLAN.md with multi-agent workflow template
+- [ ] **NEW**: Infrastructure plan for tomorrow's agent/LLM additions
 
 ---

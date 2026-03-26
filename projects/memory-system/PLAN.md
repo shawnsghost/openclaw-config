@@ -41,6 +41,33 @@ Building a multi-tier memory system for OpenClaw agent. Goal: persistent, search
 
 ---
 
+## Multi-Agent Research Workflow (Template)
+
+This project was a prototype. Future projects follow this pattern:
+
+```
+Agent 1 (Researcher) ──► Agent 2 (Reviewer) ──► Agent 3 (Main / Synthesis)
+   Crawls web              Filters sources          Reviews all
+   for hours               for quality              findings
+   (subagent)              (subagent)              (this agent)
+                                                           │
+                                                           ▼
+                                                   Medium/Long-term plan
+                                                   added to PLAN.md
+```
+
+**Workflow stages:**
+1. **Researcher agent** — Spawned subagent, crawls web for hours, saves raw findings to `projects/<name>/raw-research/`
+2. **Reviewer agent** — Spawned subagent, reads and filters raw research, saves filtered findings to `projects/<name>/filtered-research/`
+3. **Main agent** — Reviews all findings, synthesizes into medium/long-term plan, updates PLAN.md
+
+**Infrastructure needs (tomorrow):**
+- Vision-capable LLM for image analysis
+- Additional agents/LLMs for parallel workflows
+- Persistent orchestration (subagent spawning + result collection)
+
+---
+
 ## Staged Research Plan
 
 Research in 4 stages. Each stage builds on the last. Don't move to next stage until we have enough info to make decisions.
