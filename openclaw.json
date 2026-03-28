@@ -1,10 +1,10 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.3.24",
-    "lastTouchedAt": "2026-03-26T03:14:57.103Z"
+    "lastTouchedAt": "2026-03-28T00:40:26.920Z"
   },
   "wizard": {
-    "lastRunAt": "2026-03-26T03:14:57.009Z",
+    "lastRunAt": "2026-03-27T19:18:40.039Z",
     "lastRunVersion": "2026.3.24",
     "lastRunCommand": "configure",
     "lastRunMode": "local"
@@ -17,6 +17,14 @@
       },
       "minimax:global": {
         "provider": "minimax",
+        "mode": "api_key"
+      },
+      "google:default": {
+        "provider": "google",
+        "mode": "api_key"
+      },
+      "deepseek:default": {
+        "provider": "deepseek",
         "mode": "api_key"
       }
     }
@@ -46,24 +54,178 @@
             "maxTokens": 131072
           }
         ]
+      },
+      "ollama": {
+        "baseUrl": "http://100.87.6.36:11434",
+        "apiKey": "ollama-local",
+        "api": "ollama",
+        "models": [
+          {
+            "id": "nomic-embed-text",
+            "name": "nomic-embed-text",
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 8192,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "deepseek": {
+        "baseUrl": "https://api.deepseek.com",
+        "apiKey": "deepseek:default",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "deepseek-chat",
+            "name": "DeepSeek Chat",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0.28,
+              "output": 0.42,
+              "cacheRead": 0.028,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192,
+            "compat": {
+              "supportsUsageInStreaming": true
+            }
+          },
+          {
+            "id": "deepseek-reasoner",
+            "name": "DeepSeek Reasoner",
+            "api": "openai-completions",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0.28,
+              "output": 0.42,
+              "cacheRead": 0.028,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 65536,
+            "compat": {
+              "supportsUsageInStreaming": true
+            }
+          }
+        ]
+      },
+      "google": {
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+        "apiKey": "google:default",
+        "api": "google-generative-ai",
+        "models": [
+          {
+            "id": "gemini-2.5-flash-lite",
+            "name": "Gemini 2.5 Flash Lite",
+            "api": "google-generative-ai",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0.075,
+              "output": 0.30,
+              "cacheRead": 0.0075,
+              "cacheWrite": 0.0375
+            },
+            "contextWindow": 1048576,
+            "maxTokens": 8192
+          },
+          {
+            "id": "gemini-2.5-flash",
+            "name": "Gemini 2.5 Flash",
+            "api": "google-generative-ai",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0.15,
+              "output": 0.60,
+              "cacheRead": 0.015,
+              "cacheWrite": 0.075
+            },
+            "contextWindow": 1048576,
+            "maxTokens": 8192
+          }
+        ]
       }
     }
   },
   "agents": {
     "defaults": {
       "model": {
-        "primary": "minimax/MiniMax-M2.7"
+        "primary": "minimax/MiniMax-M2.7",
+        "fallbacks": [
+          "deepseek/deepseek-chat",
+          "deepseek/deepseek-reasoner",
+          "google/gemini-2.5-flash-lite",
+          "google/gemini-2.5-flash"
+        ]
       },
+      "imageModel": "google/gemini-2.5-flash-lite",
       "models": {
+        "deepseek/deepseek-chat": {
+          "alias": "DeepSeek"
+        },
+        "deepseek/deepseek-reasoner": {},
         "minimax/MiniMax-M2.7": {
           "alias": "Minimax"
-        }
+        },
+        "google/gemini-2.5-flash-lite": {
+          "alias": "Gemini"
+        },
+        "google/gemini-2.5-flash": {}
       },
       "workspace": "/home/shawn/.openclaw/workspace",
+      "memorySearch": {
+        "enabled": true,
+        "extraPaths": [
+          "/home/shawn/.openclaw/workspace"
+        ],
+        "provider": "ollama",
+        "model": "nomic-embed-text",
+        "query": {
+          "hybrid": {
+            "enabled": true,
+            "vectorWeight": 0.7,
+            "textWeight": 0.3,
+            "candidateMultiplier": 4,
+            "mmr": {
+              "enabled": true,
+              "lambda": 0.7
+            },
+            "temporalDecay": {
+              "enabled": true,
+              "halfLifeDays": 30
+            }
+          }
+        }
+      },
       "compaction": {
+        "mode": "default",
         "memoryFlush": {
           "enabled": true,
-          "softThresholdTokens": 4000
+          "softThresholdTokens": 60000,
+          "prompt": "Distill this session to memory/YYYY-MM-DD.md. Focus on decisions, state changes, lessons, blockers. If nothing worth storing: NO_FLUSH",
+          "systemPrompt": "Extract only what is worth remembering. No fluff."
         }
       }
     }
@@ -109,13 +271,13 @@
     "telegram": {
       "enabled": true,
       "dmPolicy": "pairing",
-      "botToken": "8760928653:AAHn3WGCYn_5n8my5p_GVz6pksTThnm-qr0",
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
       "groups": {
         "*": {
           "requireMention": true
         }
       },
-      "groupPolicy": "allowlist",
+      "groupPolicy": "open",
       "streaming": "partial"
     }
   },
@@ -130,11 +292,14 @@
     },
     "auth": {
       "mode": "password",
-      "password": "env:OPENCLAW_GATEWAY_PASSWORD"
+      "password": "Spoutought2@"
     },
     "tailscale": {
       "mode": "serve",
       "resetOnExit": true
+    },
+    "remote": {
+      "password": "Spoutought2@"
     },
     "nodes": {
       "denyCommands": [
@@ -154,7 +319,7 @@
     },
     "entries": {
       "notion": {
-        "apiKey": "NOTION_API_KEY"
+        "apiKey": "${NOTION_API_KEY}"
       }
     }
   },
